@@ -1,0 +1,12 @@
+# Never commit ROMs, saves or test output
+*.gba
+*.sav
+*.bmp
+runs/
+# Build products
+src/*.o
+src/wide.elf
+src/wide.bin
+src/g3e_generated.ld
+__pycache__/
+.DS_Store

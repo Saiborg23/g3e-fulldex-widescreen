@@ -1,0 +1,56 @@
+diff --git a/gba/frontend/games.h b/gba/frontend/games.h
+index d8fce69..f177904 100755
+--- a/gba/frontend/games.h
++++ b/gba/frontend/games.h
+@@ -669,6 +669,7 @@ inline bool Prepare(const Game& g, std::vector<uint8_t>& rom, std::string& error
+         }
+     }
+     if (beforeWide) *beforeWide = rom;
++    if (getenv("GBAW_SKIP_WIDE_PATCH")) return true; // (test build: wide output, no game patch)
+     if (g.patch.empty() || (g.forced && !tryForced)) return true;
+     const WidePatch* p = FindPatch(g.patch);
+     std::string why;
+diff --git a/gba/frontend/main.cpp b/gba/frontend/main.cpp
+index f1750f8..4fda9d4 100755
+--- a/gba/frontend/main.cpp
++++ b/gba/frontend/main.cpp
+@@ -3146,6 +3146,23 @@ struct App
+                 l.done = 2;
+                 shotTaken = true;
+             }
++            else if (l.what == "dump" && l.done == 0 && now >= l.frame && core && core->board)
++            {
++                // (test build) "dump FRAME FILE": EWRAM 256K, IWRAM 32K, VRAM 96K, OAM 1K, palette 1K, IO 1K
++                auto* g = (struct GBA*)core->board;
++                if (FILE* f = fopen(l.arg.c_str(), "wb"))
++                {
++                    fwrite(g->memory.wram, 1, 0x40000, f);
++                    fwrite(g->memory.iwram, 1, 0x8000, f);
++                    fwrite(g->video.vram, 1, 0x18000, f);
++                    fwrite(g->video.oam.raw, 1, 0x400, f);
++                    fwrite(g->video.palette, 1, 0x400, f);
++                    fwrite(g->memory.io, 1, 0x400, f);
++                    fclose(f);
++                    printf("dump %lld %s\n", now, l.arg.c_str());
++                }
++                l.done = 2;
++            }
+     }
+ 
+     // -----------------------------------------------------------------------------------------
+diff --git a/gba/frontend/touch.h b/gba/frontend/touch.h
+index 906402e..2320c98 100755
+--- a/gba/frontend/touch.h
++++ b/gba/frontend/touch.h
+@@ -77,10 +77,7 @@ inline void Apply(Layout& t, const TouchLayout::Profile& profile, int w, int h)
+     auto controls = profile.Apply(Geometry(t), w, h);
+     static const Button which[] = { A, B, L, R, SELECT, START, MENU, FAST }; // (controls 1 to 8)
+     t.hidden = 0;
+-    t.padHidden = controls[0].hidden;
+-    for (int i = 0; i < 8; ++i)
+-        if (controls[i + 1].hidden) t.hidden |= 1u << which[i];
+-    t.visible = profile.visible;
++    t.padHidden = false; (void)which; // (test build: touch-profile hiding not in this tree)
+     t.padX = (int)controls[0].x; t.padY = (int)controls[0].y; t.padR = (int)controls[0].rx;
+     t.aX = (int)controls[1].x; t.aY = (int)controls[1].y; t.abR = (int)controls[1].rx;
+     t.bX = (int)controls[2].x; t.bY = (int)controls[2].y; t.bR = (int)controls[2].rx;
