@@ -22,7 +22,7 @@ Or apply `patches/g3e-v1.0.22-widescreen-v2.bps` to v1.0.22 with any BPS patcher
 
 Fulldex shows "NO WIDESCREEN FOR THIS ROM" at start. That's expected: the game turns widescreen on itself.
 
-`fulldex/` holds the same patch in Fulldex's own format, [proposed for Fulldex itself](https://github.com/mamesj/pokemon-fulldex/pulls). Make it for another release with `tools/make_fulldex_patch.py ROM OUTDIR`.
+`fulldex/` holds the same patch in Fulldex's own format, [proposed for Fulldex itself](https://github.com/mamesj/pokemon-fulldex/pull/184). Make it for another release with `tools/make_fulldex_patch.py ROM OUTDIR`.
 
 ## More
 
